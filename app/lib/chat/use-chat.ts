@@ -80,8 +80,8 @@ const getStreamedResponse = async (
     
         try {
             const promise = api({
-            messages: constructedMessagesPayload as Message[],
-            data: chatRequest.data,
+                messages: constructedMessagesPayload as Message[],
+                data: chatRequest.data,
             }) as Promise<ReactResponseRow>;
             await readRow(promise, responseMessage, chatRequest, mutate);
         } catch (e) {
@@ -163,7 +163,8 @@ export function useChat({
     // Generate a unique id for the chat if not provided.
     const hookId = useId();
     const idKey = id ?? hookId;
-    const chatKey = typeof api === 'string' ? [api, idKey] : idKey;
+    // const chatKey = typeof api === 'string' ? [api, idKey] : idKey;
+    const chatKey = idKey;
   
     // Store a empty array as the initial messages
     // (instead of using a default parameter value that gets re-created each time)
@@ -176,7 +177,7 @@ export function useChat({
       null,
       { fallbackData: initialMessages ?? initialMessagesFallback },
     );
-  
+
     // We store loading state in another hook to sync loading states across hook invocations
     const { data: isLoading = false, mutate: mutateLoading } = useSWR<boolean>(
       [chatKey, 'loading'],

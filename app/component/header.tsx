@@ -5,6 +5,7 @@ import { auth } from '@/auth'
 // import { clearChats } from '@/app/lib/actions'
 import { Button } from '@/app/ui/button'
 import { Sidebar } from '@/app/component/sidebar'
+// import { ModelType } from '@/app/component/model-type'
 // import { SidebarList } from '@/app/component/sidebar-list'
 import {
   IconSeparator,
@@ -14,6 +15,9 @@ import { ThemeToggle } from '@/app/component/theme-toggle'
 // import { ClearHistory } from '@/components/clear-history'
 import { UserMenu } from '@/app/component/user-menu'
 import { signOut } from '@/auth'
+import dynamic from 'next/dynamic'
+
+const ModelType = dynamic(() => import('@/app/component/model-type'), { ssr: false })
 
 async function UserOrLogin() {
   const session = await auth()
@@ -29,7 +33,7 @@ async function UserOrLogin() {
         </SidebarFooter>
       </Sidebar>
       <div className="flex items-center">
-        <IconSeparator className="w-6 h-6 text-muted-foreground/50" />
+        <IconSeparator className="w-6 h-6 text-muted-foreground/50" /> 
         {session?.user ? (
           <UserMenu user={session.user} signOut={async () => {
             'use server'
@@ -52,6 +56,9 @@ export function Header() {
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
           <UserOrLogin />
         </React.Suspense>
+      </div>
+      <div className="flex items-center">
+        <ModelType />
       </div>
     </header>
   )

@@ -8,16 +8,26 @@ import { ChatScrollAnchor } from '@/app/component/chat-scroll-anchor'
 import { useChat } from '@/app/lib/chat/use-chat'
 import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import { useModel } from '@/app/lib/model'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id?: string
 }
 
+const modelAPI = {
+    "GPT3.5": "/api/chat",
+    "GPT4": "/api/chat_gpt4"
+}
+
 export function Chat({ id, initialMessages, className }: ChatProps) {
     const router = useRouter()
     const path = usePathname()
+    const { model } = useModel()
+    const api = model ? modelAPI[model as keyof typeof modelAPI] : 'GPT3.5'
+
     const { messages, append, reload, stop, isLoading, input, setInput} = useChat({
+        api,
         initialMessages,
         id,
         body: {
