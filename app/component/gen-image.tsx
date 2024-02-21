@@ -30,10 +30,10 @@ export function GenImage({ id, initialMessages, className }: GenImageProps) {
             }
         },
         onFinish() {
-            // if (!path.includes('chat')) {
-            //     router.push(`/chat/${id}`)
-            //     router.refresh()
-            // }
+            if (path != `/gen-image/${id}`) {
+                router.push(`/gen-image/${id}`)
+                router.refresh()
+            }
         }
     })
     return (

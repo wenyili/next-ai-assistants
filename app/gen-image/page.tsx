@@ -2,7 +2,7 @@ import { nanoid } from '@/app/lib/utils'
 import { GenImage } from '@/app/component/gen-image'
 import { Message } from '@/app/lib/chat/type'
 
-export default function Home() {
+export default function GenImagePage() {
   const id = nanoid()
 
   const messages: Message[] = [

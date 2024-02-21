@@ -1,3 +1,5 @@
+'use client'
+
 // import { UseChatHelpers } from 'ai/react'
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
@@ -12,7 +14,7 @@ import {
 } from '@/app/ui/tooltip'
 import { useEnterSubmit } from '@/app/lib/hooks/use-enter-submit'
 import { cn } from '@/app/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { UseChatHelpers } from '../lib/chat/type'
 import {isMobile} from 'react-device-detect';
 
@@ -31,6 +33,11 @@ export function PromptForm({
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
+  let pushpath = '/chat'
+  if (pathname.startsWith('/gen-image')) {
+    pushpath = '/gen-image'
+  }
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -58,7 +65,7 @@ export function PromptForm({
                       onClick={e => {
                           e.preventDefault()
                           router.refresh()
-                          router.push('/')
+                          router.push(pushpath)
                       }}
                       className={cn(
                           buttonVariants({ size: 'sm', variant: 'outline' }),

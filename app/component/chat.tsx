@@ -39,10 +39,10 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             }
         },
         onFinish() {
-            // if (!path.includes('chat')) {
-            //     router.push(`/chat/${id}`)
-            //     router.refresh()
-            // }
+            if (path != `/chat/${id}`) {
+                router.push(`/chat/${id}`)
+                router.refresh()
+            }
         }
     })
     return (
