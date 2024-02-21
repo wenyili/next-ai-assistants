@@ -4,7 +4,7 @@ import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from ".
 import { useModel } from '@/app/lib/model'
 import { usePathname } from 'next/navigation'
 
-export default function () {
+function ModelType() {
   const { model, setModel, models } = useModel()
   const path = usePathname()
   const disable = path.startsWith("/gen-image")
@@ -27,3 +27,6 @@ export default function () {
     </form>)
   )
 }
+
+ModelType.displayname = 'ModelType';
+export default ModelType;
