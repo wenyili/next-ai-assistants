@@ -14,6 +14,7 @@ import { useEnterSubmit } from '@/app/lib/hooks/use-enter-submit'
 import { cn } from '@/app/lib/utils'
 import { useRouter } from 'next/navigation'
 import { UseChatHelpers } from '../lib/chat/type'
+import {isMobile} from 'react-device-detect';
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'>  {
@@ -74,7 +75,7 @@ export function PromptForm({
         <Textarea
           ref={inputRef}
           tabIndex={0}
-          onKeyDown={onKeyDown}
+          onKeyDown={!isMobile ? onKeyDown : undefined}
           rows={1}
           value={input}
           onChange={e => setInput(e.target.value)}
