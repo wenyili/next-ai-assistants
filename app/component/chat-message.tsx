@@ -1,6 +1,7 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
 
+import React from "react"
 import { Message } from '@/app/lib/chat/type'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -37,20 +38,38 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
+              return <p className="mb-2 last:mb-0 whitespace-pre-wrap">{children}</p>
+            },
+            img({ node, ...props }) {
+              return <img className="max-w-[67%]" {...props} />
             },
             code({ node, className, children, ...props }) {
-              if (Array.isArray(children) && children.length) {
-                if (children[0] == '▍') {
-                  return (
-                    <span className="mt-1 cursor-default animate-pulse">▍</span>
-                  )
-                }
+              const childArray = React.Children.toArray(children)
+              const firstChild = childArray[0] as React.ReactElement
+              const firstChildAsString = React.isValidElement(firstChild)
+            ? (firstChild as React.ReactElement).props.children
+            : firstChild
 
-                children[0] = (children[0] as string).replace('`▍`', '▍')
+              if (firstChildAsString === "▍") {
+                return <span className="mt-1 animate-pulse cursor-default">▍</span>
               }
 
-              const match = /language-(\w+)/.exec(className || '')
+              if (typeof firstChildAsString === "string") {
+                childArray[0] = firstChildAsString.replace("`▍`", "▍")
+              }
+
+              const match = /language-(\w+)/.exec(className || "")
+
+              if (
+                typeof firstChildAsString === "string" &&
+                !firstChildAsString.includes("\n")
+              ) {
+                return (
+                  <code className={className} {...props}>
+                    {childArray}
+                  </code>
+                )
+              }
 
               return (
                 <CodeBlock
