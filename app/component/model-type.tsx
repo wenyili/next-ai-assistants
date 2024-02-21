@@ -2,12 +2,14 @@
 
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "../ui/select"
 import { useModel } from '@/app/lib/model'
+import { usePathname } from 'next/navigation'
 
-// const models = ["GPT3.5", "GPT4"]
 export default function () {
   const { model, setModel, models } = useModel()
+  const path = usePathname()
+  const disable = path.startsWith("/gen-image")
   return (
-    <form>
+    !disable && (<form>
       <div className="flex items-center justify-between">
         <Select value={model} onValueChange={setModel}>
           <SelectTrigger className="SelectTrigger"> 
@@ -22,6 +24,6 @@ export default function () {
           </SelectContent>
         </Select>
       </div>
-    </form>
+    </form>)
   )
 }
