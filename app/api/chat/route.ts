@@ -3,6 +3,7 @@ import { StreamingTextResponse } from '@/app/lib/chat/streaming-text-response'
 import OpenAI from 'openai'
 
 import { auth } from '@/auth'
+import { ChatCompletionCreateParamsStreaming } from 'openai/resources/index.mjs'
 // export const runtime = 'edge'
 
 const apiKey = process.env.AZURE_OPENAI_API_KEY
@@ -38,14 +39,19 @@ export async function POST(req: Request) {
     defaultHeaders: { 'api-key': apiKey },
   })
 
+  const options:ChatCompletionCreateParamsStreaming = {
+    model: modelName,
+    messages,
+    temperature: 0.7,
+    stream: true,
+  }
+
+  if (modelName === 'gpt-4-vision') {
+    options.max_tokens = 4096
+  }
+
   try {
-    const res = await openai.chat.completions.create({
-      model: modelName,
-      messages,
-      temperature: 0.7,
-      stream: true,
-      max_tokens: 4096
-    })
+    const res = await openai.chat.completions.create(options)
 
     const stream = OpenAIStream(res)
 
