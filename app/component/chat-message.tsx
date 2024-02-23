@@ -1,8 +1,8 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
 
-import React from "react"
-import { Message } from '@/app/lib/chat/type'
+import React, { useState } from "react"
+import { Content, Message } from '@/app/lib/chat/type'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -11,12 +11,28 @@ import { CodeBlock } from '@/app/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/app/ui/markdown'
 import { IconOpenAI, IconUser } from '@/app/ui/icons'
 import { ChatMessageActions } from '@/app/component/chat-message-actions'
-
+import Image from 'next/image'
+import { ImagePreview } from "../ui/image-preview"
 export interface ChatMessageProps {
   message: Message
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
+  const [showImagePreview, setShowImagePreview] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  
+  let images: string[] = []
+  let text = ''
+  if (typeof message.content === 'string') {
+    text = message.content
+  } else {
+    const item = message.content.find(item => item.type === 'text');
+    text = item?.text || ''
+    images =  message.content
+      .filter((item):item is Content & {image_url: string} => item.type === 'image_url' && item.image_url !== undefined)
+      .map(item => item.image_url);
+  }
+
   return (
     <div
       className={cn('group relative mb-4 flex items-start md:-ml-12')}
@@ -82,10 +98,36 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             }
           }}
         >
-          {message.content}
+          {text}
         </MemoizedReactMarkdown>
+        {
+          images.map((url, index) => (
+            <Image 
+              key={index} 
+              src={url} 
+              alt={`image-${index+1}`} 
+              width={300} 
+              height={300} 
+              onClick={() => {
+                setSelectedImage(url)
+                setShowImagePreview(true)
+              }}
+              loading="lazy"
+            />
+          ))
+        }
         <ChatMessageActions message={message} />
       </div>
+      {showImagePreview && selectedImage && (
+        <ImagePreview
+          url={selectedImage}
+          isOpen={showImagePreview}
+          onOpenChange={(isOpen: boolean) => {
+            setShowImagePreview(isOpen)
+            setSelectedImage(null)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -62,6 +62,7 @@ export async function callChatApi({
 
   if (!response.ok) {
     restoreMessagesOnFailure();
+    alert(await response.text())
     throw new Error(
       (await response.text()) || 'Failed to fetch the chat response.',
     );

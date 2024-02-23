@@ -15,19 +15,13 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   id?: string
 }
 
-const modelAPI = {
-    "GPT3.5": "/api/chat",
-    "GPT4": "/api/chat_gpt4"
-}
-
 export function Chat({ id, initialMessages, className }: ChatProps) {
     const router = useRouter()
     const path = usePathname()
     const { model } = useModel()
-    const api = model ? modelAPI[model as keyof typeof modelAPI] : 'GPT3.5'
 
-    const { messages, append, reload, stop, isLoading, input, setInput} = useChat({
-        api,
+    const { messages, append, reload, stop, isLoading, input, setInput, images, setImages, handleSelectImageFile} = useChat({
+        model,
         initialMessages,
         id,
         body: {
@@ -60,6 +54,9 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
                 messages={messages}
                 input={input}
                 setInput={setInput}
+                handleSelectImageFile={handleSelectImageFile}
+                images={images}
+                setImages={setImages}
             />
         </>
     )

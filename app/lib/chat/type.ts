@@ -6,11 +6,17 @@ export type JSONValue =
   | { [x: string]: JSONValue }
   | Array<JSONValue>;
 
+export type Content = {
+  type: string;
+  text?: string;
+  image_url?: string;
+};
+
 export interface Message {
   id: string;
   tool_call_id?: string;
   createdAt?: Date;
-  content: string;
+  content: string | Content[];
   ui?: string | JSX.Element | JSX.Element[] | null | undefined;
   role: 'system' | 'user' | 'assistant' | 'function' | 'data' | 'tool';
   /**
@@ -95,6 +101,7 @@ export type ToolChoice =
 
 export type ChatRequest = {
     messages: Message[];
+    modelName: string;
     options?: RequestOptions;
     // @deprecated
     functions?: Array<Function>;
@@ -121,6 +128,8 @@ export type UseChatOptions = {
      * a stream of tokens of the AI chat response. Defaults to `/api/chat`.
      */
     api?: string;
+
+    model?: string;
   
     /**
      * A unique identifier for the chat. If not provided, a random one will be
@@ -263,6 +272,13 @@ export type UseChatHelpers = {
     e:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
+  ) => void;
+  images: string[];
+  /** setState-powered method to update the input value */
+  setImages: React.Dispatch<React.SetStateAction<string[]>>;
+  // /** An input/textarea-ready onChange handler to control the value of the input */
+  handleSelectImageFile: (
+    e: File
   ) => void;
   /** Form submission handler to automatically reset input and append a user message */
   handleSubmit: (

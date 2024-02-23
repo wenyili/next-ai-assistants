@@ -1,22 +1,10 @@
 import { Button } from '@/app/ui/button'
-import { PromptForm } from '@/app/component/prompt-form'
 import { ButtonScrollToBottom } from '@/app/component/button-scroll-to-bottom'
 import { IconRefresh, IconStop } from '@/app/ui/icons'
-import { Message, UseChatHelpers } from '@/app/lib/chat/type'
+import { Content, Message, UseChatHelpers } from '@/app/lib/chat/type'
+import dynamic from 'next/dynamic'
 
-// export interface ChatPanelProps
-//   extends Pick<
-//     UseChatHelpers,
-//     | 'append'
-//     | 'isLoading'
-//     | 'reload'
-//     | 'messages'
-//     | 'stop'
-//     | 'input'
-//     | 'setInput'
-//   > {
-//   id?: string
-// }
+const PromptForm = dynamic(() => import('@/app/component/prompt-form'), { ssr: false })
 
 export interface ChatPanelProps
   extends Pick<
@@ -30,6 +18,9 @@ export interface ChatPanelProps
     | 'stop'
   > {
   id?: string
+  handleSelectImageFile?: (target: File) => void
+  images: string[]
+  setImages: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export function ChatPanel({
@@ -40,8 +31,26 @@ export function ChatPanel({
   reload,
   input,
   setInput,
-  messages
+  messages,
+  handleSelectImageFile,
+  images,
+  setImages
 }: ChatPanelProps) {
+  const getContent = (input: string) => {
+    let content: string | Content[] = input;
+    if (images && images.length > 0) {
+        content = [{
+            "type": "text",
+            "text": input
+        }]
+        content = content.concat(images.map((imageUrl) => ({
+            "type": "image_url",
+            "image_url": imageUrl
+        })))
+    }
+    return content
+  }
+
   return (
     <div className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-muted/10 from-10% to-muted/30 to-50%">
       <ButtonScrollToBottom />
@@ -74,13 +83,16 @@ export function ChatPanel({
             onSubmit={async value => {
               await append({
                 id,
-                content: value,
+                content: getContent(value),
                 role: 'user'
               })
             }}
             input={input}
             setInput={setInput}
             isLoading={isLoading}
+            handleSelectImageFile={handleSelectImageFile}
+            images={images}
+            setImages={setImages}
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { useContext, createContext, Fragment, useMemo, useCallback, useEffect } from "react";
 import { ModelProviderProps, UseModelProps } from "./type";
+import { useRouter } from "next/navigation";
 
 const isServer = typeof window === 'undefined'
 const DEFAULTMODEL = "GPT3.5"
@@ -23,15 +24,17 @@ export const Model: React.FC<ModelProviderProps> = ({
   children,
 }) => {
   const [model, setModelState] = React.useState(() => getModel(storageKey, defaultModel))
+  const router = useRouter()
 
   const setModel = useCallback(
     (model:string) => {
-      console.log("set model:", model)
       setModelState(model)
 
       // Save to storage
       try {
         localStorage.setItem(storageKey, model)
+        router.push(`/chat`)
+        router.refresh()
       } catch (e) {
         // Unsupported
       }

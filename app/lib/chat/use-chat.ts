@@ -1,5 +1,5 @@
 import { nanoid } from '@/app/lib/utils'
-import { type UseChatOptions, Message, UseChatHelpers, CreateMessage, ChatRequestOptions, ChatRequest, IdGenerator, JSONValue } from '@/app/lib/chat/type'
+import { type UseChatOptions, Message, UseChatHelpers, CreateMessage, ChatRequestOptions, ChatRequest, IdGenerator, JSONValue, Content } from '@/app/lib/chat/type'
 import { processChatStream } from '@/app/lib/chat/process-chat-stream'
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
@@ -96,11 +96,14 @@ const getStreamedResponse = async (
     
         return responseMessage;
     }
+
+    const imageMessage = chatRequest.messages.filter((item) => typeof item.content !== "string" )
   
     return await callChatApi({
         api,
         messages: constructedMessagesPayload,
         body: {
+            modelName:　imageMessage.length > 0 && chatRequest.modelName == "gpt-4" ? "gpt-4-vision" : chatRequest.modelName,
             data: chatRequest.data,
             ...extraMetadataRef.current.body,
             ...chatRequest.options?.body,
@@ -142,6 +145,7 @@ const getStreamedResponse = async (
 
 export function useChat({
     api = '/api/chat',
+    model = 'GPT3.5',
     id,
     initialMessages,
     initialInput = '',
@@ -155,11 +159,11 @@ export function useChat({
     headers,
     body,
     generateId = nanoid,
-  }: Omit<UseChatOptions, 'api'> & {
-    // api?: string | StreamingReactResponseAction;
-    api?: string;
+  }: UseChatOptions & {
     key?: string;
   } = {}): UseChatHelpers {
+    let modelName = model === "GPT4" ? "gpt-4" :　"gpt-3.5-turbo"
+   
     // Generate a unique id for the chat if not provided.
     const hookId = useId();
     const idKey = id ?? hookId;
@@ -263,6 +267,7 @@ export function useChat({
                 setError(err as Error);
             } finally {
                 mutateLoading(false);
+                setImages([])
             }
         },
         [
@@ -303,6 +308,7 @@ export function useChat({
     
             const chatRequest: ChatRequest = {
                 messages: messagesRef.current.concat(message as Message),
+                modelName,
                 options,
                 data,
                 ...(functions !== undefined && { functions }),
@@ -331,6 +337,7 @@ export function useChat({
             if (lastMessage.role === 'assistant') {
             const chatRequest: ChatRequest = {
                 messages: messagesRef.current.slice(0, -1),
+                modelName,
                 options,
                 ...(functions !== undefined && { functions }),
                 ...(function_call !== undefined && { function_call }),
@@ -343,11 +350,12 @@ export function useChat({
     
             const chatRequest: ChatRequest = {
             messages: messagesRef.current,
-            options,
-            ...(functions !== undefined && { functions }),
-            ...(function_call !== undefined && { function_call }),
-            ...(tools !== undefined && { tools }),
-            ...(tool_choice !== undefined && { tool_choice }),
+                modelName,
+                options,
+                ...(functions !== undefined && { functions }),
+                ...(function_call !== undefined && { function_call }),
+                ...(tools !== undefined && { tools }),
+                ...(tool_choice !== undefined && { tool_choice }),
             };
     
             return triggerRequest(chatRequest);
@@ -372,6 +380,7 @@ export function useChat({
   
     // Input state and handlers.
     const [input, setInput] = useState(initialInput);
+    const [images, setImages] = useState<string[]>([]);
   
     const handleSubmit = useCallback(
         (
@@ -388,10 +397,21 @@ export function useChat({
     
             e.preventDefault();
             if (!input) return;
+            let content: string | Content[] = input;
+            if (images && images.length > 0) {
+                content = [{
+                    "type": "text",
+                    "text": input
+                }]
+                content = content.concat(images.map((imageUrl) => ({
+                    "type": "image_url",
+                    "image_url": imageUrl
+                })))
+            }
     
             append(
             {
-                content: input,
+                content: content,
                 role: 'user',
                 createdAt: new Date(),
             },
@@ -399,12 +419,22 @@ export function useChat({
             );
             setInput('');
         },
-        [input, append],
+        [input, images, append],
     );
   
     const handleInputChange = (e: any) => {
           setInput(e.target.value);
     };
+
+    const handleSelectImageFile = (file: File) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onloadend = async function () {
+            if (typeof reader.result === 'string') {
+                setImages(prevImages => [...prevImages, reader.result as string])
+            }
+        }
+    }
   
     return {
         messages: messages || [],
@@ -416,6 +446,9 @@ export function useChat({
         input,
         setInput,
         handleInputChange,
+        images,
+        setImages,
+        handleSelectImageFile,
         handleSubmit,
         isLoading,
         data: streamData,

@@ -59,6 +59,7 @@ export async function callDalleApi({
     }
     
     if (!response.ok) {
+        alert(await response.text())
         restoreMessagesOnFailure();
         throw new Error(
             (await response.text()) || 'Failed to fetch the chat response.',
