@@ -148,6 +148,11 @@ export async function callChatApi({
 
       appendMessage({ ...responseMessage });
     }
+    if (streamedResponse.startsWith('{"revised_prompt":')) {
+      const data = JSON.parse(streamedResponse)  
+      responseMessage['content'] = `${data["revised_prompt"]}\n![generated image](${data["url"]})`;
+      appendMessage({ ...responseMessage });
+    }
 
     if (onFinish) {
       onFinish(responseMessage);

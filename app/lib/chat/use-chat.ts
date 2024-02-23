@@ -141,6 +141,12 @@ const getStreamedResponse = async (
         generateId,
     });
 };
+
+const MODEL_NAME: Record<string, string> = {
+    "GPT3.5": "gpt-3.5-turbo",
+    "GPT4": "gpt-4",
+    "Dalle3": "dall-e-3"
+}
   
 
 export function useChat({
@@ -162,7 +168,7 @@ export function useChat({
   }: UseChatOptions & {
     key?: string;
   } = {}): UseChatHelpers {
-    let modelName = model === "GPT4" ? "gpt-4" :　"gpt-3.5-turbo"
+    let modelName = MODEL_NAME[model]
    
     // Generate a unique id for the chat if not provided.
     const hookId = useId();

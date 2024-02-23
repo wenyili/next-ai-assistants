@@ -16,7 +16,7 @@ export const ModelProvider: React.FC<ModelProviderProps> =  props => {
   return <Model {...props} />
 }
 
-const defaultModels = ["GPT3.5", "GPT4"]
+const defaultModels = ["GPT3.5", "GPT4", "Dalle3"]
 export const Model: React.FC<ModelProviderProps> = ({ 
   models = defaultModels,
   defaultModel = DEFAULTMODEL,

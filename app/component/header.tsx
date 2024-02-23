@@ -16,7 +16,6 @@ import { ThemeToggle } from '@/app/component/theme-toggle'
 import { UserMenu } from '@/app/component/user-menu'
 import { signOut } from '@/auth'
 import dynamic from 'next/dynamic'
-import { SidebarItem } from './sidebar-item'
 
 const ModelType = dynamic(() => import('@/app/component/model-type'), { ssr: false })
 
@@ -25,8 +24,6 @@ async function UserOrLogin() {
   return (
     <>
       <Sidebar>
-        <SidebarItem name="Chat" path="/chat"/>
-        <SidebarItem name="Gen Image" path="/gen-image"/>
         {/* <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
           <SidebarList userId={session?.user?.id} />
         </React.Suspense> */}

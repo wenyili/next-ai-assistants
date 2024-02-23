@@ -46,11 +46,6 @@ function PromptForm({
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { model } = useModel()
 
-  let pushpath = '/chat'
-  if (pathname.startsWith('/gen-image')) {
-    pushpath = '/gen-image'
-  }
-
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -94,7 +89,7 @@ function PromptForm({
                   onClick={e => {
                       e.preventDefault()
                       router.refresh()
-                      router.push(pushpath)
+                      router.push('/chat')
                   }}
                   className={cn(
                     buttonVariants({ size: 'sm', variant: 'outline' }),

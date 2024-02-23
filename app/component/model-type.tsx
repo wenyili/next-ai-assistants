@@ -7,9 +7,8 @@ import { usePathname } from 'next/navigation'
 function ModelType() {
   const { model, setModel, models } = useModel()
   const path = usePathname()
-  const disable = path.startsWith("/gen-image")
   return (
-    !disable && (<form>
+    <form>
       <div className="flex items-center justify-between">
         <Select value={model} onValueChange={setModel}>
           <SelectTrigger className="SelectTrigger"> 
@@ -24,7 +23,7 @@ function ModelType() {
           </SelectContent>
         </Select>
       </div>
-    </form>)
+    </form>
   )
 }
 
