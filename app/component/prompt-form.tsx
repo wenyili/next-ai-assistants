@@ -57,6 +57,21 @@ function PromptForm({
     }
   }, [])
 
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const items = event.clipboardData.items
+    if (!items || items.length === 0 ) {
+      return
+    }
+    const item = items[0]
+    if (item.type.indexOf("image") !== 0) {
+      return
+    }
+    const file = item.getAsFile()
+    if (file) {
+      handleSelectImageFile?.(file)
+    }
+  }
+
   return (
     <>
       {(images && setImages && images.length > 0) && <ChatImagesDisplay images={images} setImages={setImages}/>}
@@ -115,6 +130,7 @@ function PromptForm({
             rows={1}
             value={input}
             onChange={e => setInput(e.target.value)}
+            onPaste={handlePaste}
             placeholder="Send a message."
             spellCheck={false}
             className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
