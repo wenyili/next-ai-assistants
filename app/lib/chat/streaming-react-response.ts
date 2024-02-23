@@ -55,7 +55,7 @@ export class experimental_StreamingReactResponse {
       parseComplexResponse({
         reader: processedStream.getReader(),
         update: (merged, data) => {
-          const content = merged[0]?.content ?? '';
+          // const content = merged[0]?.content ?? '';
           const ui = options?.ui?.({ content, data }) || content;
           const payload: Payload = { ui, content };
 

@@ -68,7 +68,7 @@ export function useGenImage({
     // api?: string | StreamingReactResponseAction;
     api?: string;
     key?: string;
-  } = {}): UseChatHelpers {
+  } = {}): Omit<UseChatHelpers, 'images' | 'setImages' | 'handleSelectImageFile'> {
     // Generate a unique id for the chat if not provided.
     const hookId = useId();
     const idKey = id ?? hookId;
@@ -202,6 +202,7 @@ export function useGenImage({
     
             const chatRequest: ChatRequest = {
                 messages: messagesRef.current.concat(message as Message),
+                modelName: "dall-e-3",
                 options,
                 data,
                 ...(functions !== undefined && { functions }),
@@ -230,6 +231,7 @@ export function useGenImage({
             if (lastMessage.role === 'assistant') {
             const chatRequest: ChatRequest = {
                 messages: messagesRef.current.slice(0, -1),
+                modelName: "dall-e-3",
                 options,
                 ...(functions !== undefined && { functions }),
                 ...(function_call !== undefined && { function_call }),
@@ -242,6 +244,7 @@ export function useGenImage({
     
             const chatRequest: ChatRequest = {
             messages: messagesRef.current,
+            modelName: "dall-e-3",
             options,
             ...(functions !== undefined && { functions }),
             ...(function_call !== undefined && { function_call }),
