@@ -2,9 +2,8 @@ import { OpenAIStream } from '@/app/lib/chat/openai-stream'
 import { StreamingTextResponse } from '@/app/lib/chat/streaming-text-response'
 import OpenAI from 'openai'
 
-import { auth } from '@/auth'
 import { ChatCompletionCreateParamsStreaming } from 'openai/resources/index.mjs'
-// export const runtime = 'edge'
+export const runtime = 'edge'
 
 const apiKey = process.env.AZURE_OPENAI_API_KEY
 const resource = process.env.AZURE_OPENAI_RESOURCE
@@ -13,17 +12,9 @@ const model4 = process.env.AZURE_OPENAI_MODEL_GPT4
 const model4vision = process.env.AZURE_OPENAI_MODEL_GPT4_VISION
 const apiVersion = process.env.AZURE_OPENAI_VERSION
 
-
 export async function POST(req: Request) {
   const json = await req.json()
   const { messages, modelName } = json
-  const user = (await auth())?.user
-
-  if (!user) {
-    return new Response('Unauthorized', {
-      status: 401
-    })
-  }
 
   let deployemntName = model
   if (modelName === 'gpt-4-vision') {
