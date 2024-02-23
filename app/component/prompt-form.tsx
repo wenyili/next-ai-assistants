@@ -26,8 +26,8 @@ export interface PromptProps
   onSubmit: (value: string) => Promise<void>
   isLoading: boolean
   handleSelectImageFile?: (target: File) => void
-  images: string[]
-  setImages: React.Dispatch<React.SetStateAction<string[]>>;
+  images?: string[]
+  setImages?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 function PromptForm({
@@ -59,7 +59,7 @@ function PromptForm({
 
   return (
     <>
-      {(images && images.length > 0) && <ChatImagesDisplay images={images} setImages={setImages}/>}
+      {(images && setImages && images.length > 0) && <ChatImagesDisplay images={images} setImages={setImages}/>}
       <form
         onSubmit={async e => {
           e.preventDefault()

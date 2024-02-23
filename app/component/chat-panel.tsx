@@ -19,8 +19,8 @@ export interface ChatPanelProps
   > {
   id?: string
   handleSelectImageFile?: (target: File) => void
-  images: string[]
-  setImages: React.Dispatch<React.SetStateAction<string[]>>;
+  images?: string[]
+  setImages?: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export function ChatPanel({
