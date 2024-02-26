@@ -5,7 +5,7 @@ import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
 
 import { Button, buttonVariants } from '@/app/ui/button'
-import { IconArrowElbow, IconPlus, IconImage } from '@/app/ui/icons'
+import { IconArrowElbow, IconPlus, IconImage, IconMic } from '@/app/ui/icons'
 import {
   Tooltip,
   TooltipContent,
@@ -14,12 +14,13 @@ import {
 } from '@/app/ui/tooltip'
 import { useEnterSubmit } from '@/app/lib/hooks/use-enter-submit'
 import { cn } from '@/app/lib/utils'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { UseChatHelpers } from '../lib/chat/type'
 import {isMobile} from 'react-device-detect';
 import { Input } from '../ui/input'
 import { ChatImagesDisplay } from './chat-images-display'
 import { useModel } from '../lib/model'
+import { VoiceDetector } from './voice-detector'
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'>  {
@@ -42,9 +43,9 @@ function PromptForm({
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
-  const pathname = usePathname()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { model } = useModel()
+  const [ showVoiceDetector, setShowVoiceDetector ] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -69,6 +70,17 @@ function PromptForm({
 
   return (
     <>
+      {showVoiceDetector && (
+        <VoiceDetector
+          isOpen={showVoiceDetector}
+          onOpenChange={async (isOpen: boolean, result?: string) => {
+            setShowVoiceDetector(isOpen)
+            if (result) {
+              await onSubmit(result)
+            }
+          }}
+        />
+      )}
       {(images && setImages && images.length > 0) && <ChatImagesDisplay images={images} setImages={setImages}/>}
       <form
         onSubmit={async e => {
@@ -117,6 +129,23 @@ function PromptForm({
               </TooltipTrigger>
               <TooltipContent>New Image</TooltipContent>
             </Tooltip>)}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={e => {
+                    setShowVoiceDetector(true)
+                  }}
+                  className={cn(
+                    buttonVariants({ size: 'sm', variant: 'outline' }),
+                    'ml-2 top-4 h-8 w-8 rounded-full bg-background p-2'
+                  )}
+                >
+                  <IconMic />
+                  <span className="sr-only">Ask</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Ask</TooltipContent>
+            </Tooltip>
           </TooltipProvider>
           <Textarea
             ref={inputRef}
