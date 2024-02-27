@@ -19,7 +19,7 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
     const buffer = await req.blob()
     try {
-        const file = await toFile(buffer, 'speech.mp3', {type:　"mp3"})
+        const file = await toFile(buffer)
         console.log(`file: name->${file.name} type->${file.type} size->${file.size}`)
         // Convert the audio data to text
         const translation = await openai.audio.transcriptions.create({

@@ -8,6 +8,13 @@ interface VoiceDetectorProps {
   onOpenChange: (isOpen: boolean, result?: string) => void
 }
 
+const MIME_TYPES = [
+  'video/webm;codecs="vp8,opus"',
+  'video/webm;codecs=h264',
+  'video/webm;codecs=vp9',
+  'video/webm'
+]
+
 export function VoiceDetector ({
   isOpen,
   onOpenChange
@@ -39,6 +46,12 @@ export function VoiceDetector ({
     }
   }, [recordingBlob]);
 
+  const getMimeType = () => {
+    return window.MediaRecorder.isTypeSupported
+      ? MIME_TYPES.find(window.MediaRecorder.isTypeSupported)
+      : 'video/webm'
+  }
+
 
   // Function to start recording
   const startRecording = () => {
@@ -47,7 +60,7 @@ export function VoiceDetector ({
       .then((stream) => {
         setRecording(true);
         const recorder: MediaRecorder = new MediaRecorder(
-          stream
+          stream, {mimeType: getMimeType()}
         );
         alert(recorder.mimeType);
         setMediaRecorder(recorder);
