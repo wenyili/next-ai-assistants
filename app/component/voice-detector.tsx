@@ -47,7 +47,7 @@ export function VoiceDetector ({
       .then((stream) => {
         setRecording(true);
         const recorder: MediaRecorder = new MediaRecorder(
-          stream
+          stream, {mimeType: 'audio/webm'}
         );
         setMediaRecorder(recorder);
         recorder.start();
