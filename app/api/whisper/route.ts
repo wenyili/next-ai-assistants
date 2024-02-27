@@ -16,11 +16,18 @@ const openai = new OpenAI({
     defaultHeaders: { 'api-key': apiKey },
 })
 
+function getExt(mimeType: string) {
+    const mimetype = mimeType.split(";")[0]
+    if (mimetype.split("/")[1] === "webm") {
+        return "webm"
+    }
+    return "mp4"
+}
+
 export async function POST(req: Request) {
     const buffer = await req.blob()
     try {
-        const file = await toFile(buffer, 'speech.webm', {type:　"webm"})
-        console.log(`file: name->${file.name} type->${file.type} size->${file.size}`)
+        const file = await toFile(buffer, `speech.${getExt(buffer.type)}`, {type: buffer.type})
         // Convert the audio data to text
         const translation = await openai.audio.transcriptions.create({
             file: file,
@@ -31,11 +38,11 @@ export async function POST(req: Request) {
     } catch(error: any) {
         // Handle any errors that occur during the request
         if (error.response) {
-        console.error(error.response.status, error.response.data);
-        return NextResponse.json({ error: error.response.data }, {status:500});
+            console.error(error.response.status, error.response.data);
+            return NextResponse.json({ error: error.response.data }, {status:500});
         } else {
-        console.error(`Error with OpenAI API request: ${error.message}`);
-        return NextResponse.json({ error: "An error occurred during your request." }, {status:500});
+            console.error(`Error with OpenAI API request: ${error.message}`);
+            return NextResponse.json({ error: error.message }, {status:500});
         }
     }
 }

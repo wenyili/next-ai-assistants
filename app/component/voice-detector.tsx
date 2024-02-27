@@ -8,13 +8,6 @@ interface VoiceDetectorProps {
   onOpenChange: (isOpen: boolean, result?: string) => void
 }
 
-const MIME_TYPES = [
-  'video/webm;codecs="vp8,opus"',
-  'video/webm;codecs=h264',
-  'video/webm;codecs=vp9',
-  'video/webm'
-]
-
 export function VoiceDetector ({
   isOpen,
   onOpenChange
@@ -32,43 +25,45 @@ export function VoiceDetector ({
       recording == false
     ) {
       const fetchData = async () => {
-        const response = await fetch("/api/whisper", {
-          method: "POST",
-          body: recordingBlob,
-        });
-        const data = await response.json();
-        if (response.status !== 200) {
-          throw data.error || new Error(`Request failed with status ${response.status}`);
+        try {
+          const response = await fetch("/api/whisper", {
+            method: "POST",
+            body: recordingBlob,
+          });
+          const data = await response.json();
+          if (response.status !== 200) {
+            throw data.error || new Error(`Request failed with status ${response.status}`);
+          }
+          setResult(data.result);
+        } catch (err) {
+          console.error(err)
+          alert(err)
         }
-        setResult(data.result);
       }
       fetchData()
     }
   }, [recordingBlob]);
 
-  const getMimeType = () => {
-    return window.MediaRecorder.isTypeSupported
-      ? MIME_TYPES.find(window.MediaRecorder.isTypeSupported)
-      : 'video/webm'
-  }
-
-
   // Function to start recording
   const startRecording = () => {
+    const chunks: Blob[] = [];
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
         setRecording(true);
         const recorder: MediaRecorder = new MediaRecorder(
-          stream, {mimeType: getMimeType()}
+          stream
         );
-        alert(recorder.mimeType);
         setMediaRecorder(recorder);
-        recorder.start();
-        // _startTimer();
+        recorder.start(1000);
 
         recorder.addEventListener("dataavailable", (event) => {
-          setRecordingBlob(event.data);
+          chunks.push(event.data);
+        });
+
+        recorder.addEventListener("stop", (event) => {
+          const blob = new Blob(chunks);
+          setRecordingBlob(blob);
           recorder.stream.getTracks().forEach((t) => t.stop());
           setMediaRecorder(undefined);
         });
@@ -86,7 +81,10 @@ export function VoiceDetector ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(isOpen) => onOpenChange(isOpen, result)}>
+    <Dialog open={isOpen} onOpenChange={(isOpen) => {
+        setMediaRecorder(undefined);
+        onOpenChange(isOpen, result)}
+      }>
       <DialogContent
         className={cn(
           "flex flex-col border-transparent bg-transparent outline-none"
