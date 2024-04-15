@@ -1,7 +1,6 @@
 import { OpenAIStream } from '@/app/lib/chat/openai-stream'
 import { StreamingTextResponse } from '@/app/lib/chat/streaming-text-response'
 import OpenAI from 'openai'
-
 import { ChatCompletionCreateParamsStreaming } from 'openai/resources/index.mjs'
 export const runtime = 'edge'
 
@@ -15,7 +14,7 @@ const apiVersion = process.env.AZURE_OPENAI_VERSION
 
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, modelName } = json
+  const { messages, modelName = "gpt-3.5-turbo", stream = true } = json
 
   let deployemntName = model
   if (modelName === 'gpt-4-vision') {
@@ -34,7 +33,14 @@ export async function POST(req: Request) {
   })
 
   try {
-    if (modelName !== "dall-e-3") {
+    if (deployemntName === modelDalle3) {
+      const res  = await openai.images.generate({
+        model,
+        prompt: messages[messages.length-1]['content'],
+        n:1
+      })
+      return new Response(JSON.stringify(res.data[0]))
+    } else if (stream) {
       const options:ChatCompletionCreateParamsStreaming = {
         model: modelName,
         messages,
@@ -49,17 +55,20 @@ export async function POST(req: Request) {
       const stream = OpenAIStream(res)
       return new StreamingTextResponse(stream)
     } else {
-      const res  = await openai.images.generate({
-        model,
-        prompt: messages[messages.length-1]['content'],
-        n:1
+      const res = await openai.chat.completions.create({
+        model: modelName,
+        messages,
+        temperature: 0.7,
+        stream: false,
       })
-      return new Response(JSON.stringify(res.data[0]))
+      console.log(res.choices[0].message)
+      return new Response(JSON.stringify(res.choices[0].message))
     }
   } catch (error: any) {
     let errorMessage = error.message || "An unexpected error occurred"
     const errorCode = error.status || 500
 
+    console.error(errorMessage)
     return new Response(errorMessage, {
       status: errorCode
     })

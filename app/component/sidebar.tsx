@@ -11,12 +11,11 @@ import {
   SheetTrigger
 } from '@/app/ui/sheet'
 import { IconSidebar } from '@/app/ui/icons'
+import { SidebarList } from './sidebar-list'
+import { SidebarFooter } from './sidebar-footer'
+import { ThemeToggle } from './theme-toggle'
 
-export interface SidebarProps {
-  children?: React.ReactNode
-}
-
-export function Sidebar({ children }: SidebarProps) {
+export function Sidebar() {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -29,7 +28,11 @@ export function Sidebar({ children }: SidebarProps) {
         <SheetHeader className="p-4">
           <SheetTitle className="text-sm">Chat History</SheetTitle>
         </SheetHeader>
-        {children}
+        <SidebarList/>
+        <SidebarFooter>
+          <ThemeToggle />
+          {/* <ClearHistory clearChats={clearChats} /> */}
+        </SidebarFooter>
       </SheetContent>
     </Sheet>
   )

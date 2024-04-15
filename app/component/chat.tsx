@@ -6,7 +6,6 @@ import { ChatList } from '@/app/component/chat-list'
 import { ChatPanel } from '@/app/component/chat-panel'
 import { ChatScrollAnchor } from '@/app/component/chat-scroll-anchor'
 import { useChat } from '@/app/lib/chat/use-chat'
-import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { useModel } from '@/app/lib/model'
 
@@ -16,8 +15,6 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 }
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
-    const router = useRouter()
-    const path = usePathname()
     const { model } = useModel()
 
     const { messages, append, reload, stop, isLoading, input, setInput, images, setImages, handleSelectImageFile} = useChat({
@@ -33,10 +30,10 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             }
         },
         onFinish() {
-            if (path != `/chat/${id}`) {
-                router.push(`/chat/${id}`)
-                router.refresh()
-            }
+            // if (path != `/chat/${id}`) {
+            //     router.push(`/chat/${id}`)
+            //     router.refresh()
+            // }
         }
     })
     return (
