@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { type Chat } from '@/app/lib/types'
 import { auth } from '@/auth'
 import { unstable_noStore as noStore } from 'next/cache';
@@ -37,7 +36,6 @@ export async function getChats() {
 }
 
 export async function getChat(id: string) {
-    console.log(`get chat: ${id}`)
     const session = await auth() 
     const userId = session?.user?.name
 

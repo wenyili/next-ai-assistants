@@ -17,7 +17,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 export function Chat({ id, initialMessages, className }: ChatProps) {
     const { model } = useModel()
 
-    const { messages, append, reload, stop, isLoading, input, setInput, images, setImages, handleSelectImageFile} = useChat({
+    const { messages, append, reload, stop, isLoading, input, setInput, images, setImages, handleSelectImageFile, setMessages} = useChat({
         model,
         initialMessages,
         id,
@@ -39,7 +39,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
     return (
         <>
             <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-                <ChatList messages={messages} />
+                <ChatList messages={messages} setMessages={setMessages} />
                 <ChatScrollAnchor trackVisibility={isLoading} />
             </div>
             <ChatPanel
