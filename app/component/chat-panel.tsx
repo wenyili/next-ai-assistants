@@ -1,8 +1,12 @@
 import { Button } from '@/app/ui/button'
 import { ButtonScrollToBottom } from '@/app/component/button-scroll-to-bottom'
-import { IconRefresh, IconStop } from '@/app/ui/icons'
-import { Content, Message, UseChatHelpers } from '@/app/lib/chat/type'
+import { IconRefresh, IconSave, IconSpinner, IconStop } from '@/app/ui/icons'
+import { Content, UseChatHelpers } from '@/app/lib/chat/type'
 import dynamic from 'next/dynamic'
+import { saveChat } from '../actions'
+import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
+import { mutate } from 'swr'
 
 const PromptForm = dynamic(() => import('@/app/component/prompt-form'), { ssr: false })
 
@@ -36,6 +40,8 @@ export function ChatPanel({
   images,
   setImages
 }: ChatPanelProps) {
+  const [isSavePending, startSaveTransition] = useTransition()
+  const router = useRouter()
   const getContent = (input: string) => {
     let content: string | Content[] = input;
     if (images && images.length > 0) {
@@ -49,6 +55,41 @@ export function ChatPanel({
         })))
     }
     return content
+  }
+
+  const getTitle = async () => {
+    const prompt = [{
+      role: "user",
+      content: `${JSON.stringify(messages.slice(0, 2))}\n为上面这段对话取个名字（尽量简短），不要带引号：`
+    }]
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: prompt,
+        modelName: "gpt-3.5-turbo",
+        stream: false
+      }),
+    })
+    const data = await response.json();
+    return data.content
+  }
+  
+  const saveMessage = async () => {
+    try {
+      const title = await getTitle()
+      await saveChat({
+        id,
+        title,
+        path: `/chat/${id}`,
+        createdAt: new Date(),
+        messages
+      })
+      router.push(`/chat/${id}`)
+      router.refresh()
+    } catch (err) {
+      console.error(err)
+      alert(err)
+    }
   }
 
   return (
@@ -67,14 +108,27 @@ export function ChatPanel({
             </Button>
           ) : (
             messages?.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={() => reload()}
-                className="bg-background"
-              >
-                <IconRefresh className="mr-2" />
-                Regenerate response
-              </Button>
+              <div>
+                <Button
+                  variant="outline"
+                  onClick={() => startSaveTransition(async () => {
+                    await saveMessage()
+                    mutate('/api/storage')
+                  })}
+                  className="bg-background"
+                >
+                  {isSavePending ? <IconSpinner className="mr-2 animate-spin" /> : <IconSave className="mr-2" />}
+                  Save
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => reload()}
+                  className="bg-background ml-1"
+                >
+                  <IconRefresh className="mr-2" />
+                  Regenerate response
+                </Button>
+              </div>
             )
           )}
         </div>

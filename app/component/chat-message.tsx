@@ -15,9 +15,12 @@ import Image from 'next/image'
 import { ImagePreview } from "../ui/image-preview"
 export interface ChatMessageProps {
   message: Message
+  index: number
+  removeMessage: (index: number) => void
+  editMessage: (index: number, newContent: string) => void
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function ChatMessage({ message, index, removeMessage, editMessage, ...props }: ChatMessageProps) {
   const [showImagePreview, setShowImagePreview] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   
@@ -116,7 +119,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             />
           ))
         }
-        <ChatMessageActions message={message} />
+        <ChatMessageActions message={message} index={index} removeMessage={removeMessage} editMessage={editMessage} />
       </div>
       {showImagePreview && selectedImage && (
         <ImagePreview
