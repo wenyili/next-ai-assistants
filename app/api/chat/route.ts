@@ -61,7 +61,6 @@ export async function POST(req: Request) {
         temperature: 0.7,
         stream: false,
       })
-      console.log(res.choices[0].message)
       return new Response(JSON.stringify(res.choices[0].message))
     }
   } catch (error: any) {

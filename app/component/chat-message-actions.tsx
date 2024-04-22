@@ -7,7 +7,7 @@ import { Button } from '@/app/ui/button'
 import { IconCheck, IconCopy, IconEdit, IconSpinner, IconTrash } from '@/app/ui/icons'
 import { useCopyToClipboard } from '@/app/lib/hooks/use-copy-to-clipboard'
 import { cn } from '@/app/lib/utils'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   EditDialog,
   EditDialogClose,
@@ -35,16 +35,19 @@ export function ChatMessageActions({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [editDialogOpen, setEditDialogOpen] = React.useState(false)
   const [isEditPending, startEditTransition] = React.useTransition()
+  const [text, setText] = useState<string>('')
+  const [messageContent, setMessageContent] = useState(''); 
   
-  let text = ''
-  if (typeof message.content === 'string') {
-    text = message.content
-  } else {
-    const item = message.content.find(item => item.type === 'text');
-    text = item?.text || ''
-  }
-
-  const [messageContent, setMessageContent] = useState(text); 
+  useEffect(() => {
+    if (typeof message.content === 'string') {
+      setText(message.content)
+      setMessageContent(message.content)
+    } else {
+      const item = message.content.find(item => item.type === 'text');
+      setText(item?.text || '')
+      setMessageContent(item?.text || '')
+    }
+  }, [message])
 
   const onCopy = () => {
     if (isCopied) return
