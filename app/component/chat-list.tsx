@@ -2,7 +2,6 @@ import { type Message } from '@/app/lib/chat/type'
 
 import { Separator } from '@/app/ui/separator'
 import { ChatMessage } from '@/app/component/chat-message'
-import { text } from 'stream/consumers'
 
 export interface ChatList {
   messages: Message[]
@@ -22,16 +21,17 @@ export function ChatList({ messages, setMessages }: ChatList) {
 
   const editMessage = (index: number, newContent: string) => {
     const newMessages = [...messages]
-    const message = newMessages[index]
+    const newMessage: Message = JSON.parse(JSON.stringify(messages[index]))
     // if content.message is a string
-    if (typeof message.content === 'string') {
-      message.content = newContent
+    if (typeof newMessage.content === 'string') {
+      newMessage.content = newContent
     } else {
       // message.content is Content[]
       // find the index of Content whose type is 'text'
-      const textIndex = message.content.findIndex(content => content.type === 'text')
-      message.content[textIndex].text = newContent
+      const textIndex = newMessage.content.findIndex(content => content.type === 'text')
+      newMessage.content[textIndex].text = newContent
     }
+    newMessages[index] = newMessage
     setMessages(newMessages)
   }
 
