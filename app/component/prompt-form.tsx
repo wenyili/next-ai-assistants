@@ -153,6 +153,7 @@ function PromptForm({
             tabIndex={0}
             onKeyDown={!isMobile ? onKeyDown : undefined}
             rows={1}
+            maxRows={10}
             value={input}
             onChange={e => setInput(e.target.value)}
             onPaste={handlePaste}
