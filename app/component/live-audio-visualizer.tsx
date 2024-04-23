@@ -3,14 +3,10 @@ import {
     useCallback,
     useEffect,
     useRef,
-    useState,
   } from "react";
   
   export interface Props {
-    /**
-     * Media recorder who's stream needs to visualized
-     */
-    mediaRecorder: MediaRecorder;
+    analyser: AnalyserNode;
     /**
      * Width of the visualization. Default" "100%"
      */
@@ -154,7 +150,7 @@ import {
 
   
   const LiveAudioVisualizer: (props: Props) => ReactElement = ({
-    mediaRecorder,
+    analyser,
     width = "100%",
     height = "100%",
     barWidth = 2,
@@ -166,47 +162,21 @@ import {
     minDecibels = -90,
     smoothingTimeConstant = 0.4,
   }: Props) => {
-    const [context] = useState(() => new AudioContext());
-    const [analyser, setAnalyser] = useState<AnalyserNode>();
     const canvasRef = useRef<HTMLCanvasElement>(null);
   
     useEffect(() => {
-      if (!mediaRecorder.stream) return;
-  
-      const analyserNode = context.createAnalyser();
-      setAnalyser(analyserNode);
-      analyserNode.fftSize = fftSize;
-      analyserNode.minDecibels = minDecibels;
-      analyserNode.maxDecibels = maxDecibels;
-      analyserNode.smoothingTimeConstant = smoothingTimeConstant;
-      const source = context.createMediaStreamSource(mediaRecorder.stream);
-      source.connect(analyserNode);
-    }, [mediaRecorder.stream]);
-  
-    useEffect(() => {
-      if (analyser && mediaRecorder.state === "recording") {
-        report();
-      }
-    }, [analyser, mediaRecorder.state]);
+      if (!analyser) return;
+      report();
+    }, [analyser]);
   
     const report = useCallback(() => {
       if (!analyser) return;
   
       const data = new Uint8Array(analyser?.frequencyBinCount);
-  
-      if (mediaRecorder.state === "recording") {
-        analyser?.getByteFrequencyData(data);
-        processFrequencyData(data);
-        requestAnimationFrame(report);
-      } else if (mediaRecorder.state === "paused") {
-        processFrequencyData(data);
-      } else if (
-        mediaRecorder.state === "inactive" &&
-        context.state !== "closed"
-      ) {
-        context.close();
-      }
-    }, [analyser, context.state]);
+      analyser.getByteFrequencyData(data);
+      processFrequencyData(data);
+      requestAnimationFrame(report);
+    }, [analyser]);
   
     const processFrequencyData = (data: Uint8Array): void => {
       if (!canvasRef.current) return;

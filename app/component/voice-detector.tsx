@@ -2,6 +2,7 @@ import { cn } from "@/app/lib/utils"
 import { useEffect } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/app/ui/dialog"
 import { useRecorder } from "../lib/useRecorder"
+import { LiveAudioVisualizer } from "./live-audio-visualizer"
 
 interface VoiceDetectorProps {
   isOpen: boolean
@@ -12,7 +13,7 @@ export function VoiceDetector ({
   isOpen,
   onOpenChange
 }: VoiceDetectorProps) {
-  const { recording, startRecoding, stopRecording, showText } = useRecorder();
+  const { recording, startRecoding, stopRecording, showText, analyser } = useRecorder();
   
   useEffect(() => {
     startRecoding()
@@ -36,6 +37,7 @@ export function VoiceDetector ({
         )}
       >
         <DialogTitle>Recording...</DialogTitle>
+        {analyser && <LiveAudioVisualizer analyser={analyser} width={400} height={75}/>}
         <DialogDescription className="mt-2">{showText}</DialogDescription>
         <div className="flex justify-end">
           <DialogClose asChild>

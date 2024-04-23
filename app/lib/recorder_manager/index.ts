@@ -2,6 +2,7 @@ export class RecorderManager {
     private audioContext?: AudioContext;
     private audioNode?: AudioWorkletNode;
     private audioTracks?: MediaStreamTrack[];
+    private sourceNode?: MediaStreamAudioSourceNode;
 
     /**
      * 构造函数
@@ -43,6 +44,7 @@ export class RecorderManager {
         this.audioTracks = stream.getTracks();
         const sourceNode = this.audioContext.createMediaStreamSource(stream)
         const audioNode = new AudioWorkletNode(this.audioContext, "processor-worklet")
+        this.sourceNode = sourceNode
         this.audioNode = audioNode
 
         audioNode.port.postMessage({
@@ -90,6 +92,23 @@ export class RecorderManager {
             this.audioContext.close()
         }
     };
+
+    getAnalyser() {
+        if (!this.audioContext || !this.sourceNode) return;
+        // 创建 AnalyserNode
+        const analyser = this.audioContext.createAnalyser();
+
+        // 设置 FFT 大小
+        analyser.fftSize = 1024;
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -10;
+        analyser.smoothingTimeConstant = 0.4;
+
+        // 连接到音频处理链
+        this.sourceNode.connect(analyser);
+
+        return analyser;
+    }
 }
 
 export { RecorderManager as default };

@@ -30,12 +30,14 @@ export function useRecorder() {
     const resultText = useRef<string>('')
     const recorder = useRef<RecorderManager>()
     const recorderType = useRef<string>("iat")
+    const [analyser, setAnalyser] = useState<AnalyserNode>()
 
     if (!recorder.current) {
         recorder.current = new RecorderManager('./recorder');
         recorder.current.onStart = () => {
             console.debug("recording...")
             setRecording("RECORDING")
+            setAnalyser(recorder.current?.getAnalyser())
         }
         recorder.current.onStop = () => {
             console.debug("...stop recording");
@@ -193,5 +195,5 @@ export function useRecorder() {
         recorder.current?.stop();
     }
 
-    return {recording, startRecoding, stopRecording, showText}
+    return {recording, startRecoding, stopRecording, showText, analyser}
 }
