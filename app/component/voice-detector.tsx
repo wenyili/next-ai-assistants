@@ -1,7 +1,7 @@
 import { cn } from "@/app/lib/utils"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/app/ui/dialog"
-import { LiveAudioVisualizer } from "./live-audio-visualizer"
+import { useRecorder } from "../lib/useRecorder"
 
 interface VoiceDetectorProps {
   isOpen: boolean
@@ -12,93 +12,31 @@ export function VoiceDetector ({
   isOpen,
   onOpenChange
 }: VoiceDetectorProps) {
-  let chunks: Blob[] = [];
+  const { recording, startRecoding, stopRecording, showText } = useRecorder();
   
-  const [result, setResult] = useState();
-  const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
-  const [recordingBlob, setRecordingBlob] = useState<Blob>();
-
   useEffect(() => {
-    if (
-      recordingBlob != null &&
-      recording == false
-    ) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch("/api/whisper", {
-            method: "POST",
-            body: recordingBlob,
-          });
-          const data = await response.json();
-          if (response.status !== 200) {
-            throw data.error || new Error(`Request failed with status ${response.status}`);
-          }
-          setResult(data.result);
-        } catch (err) {
-          console.error(err)
-          alert(err)
-        }
-      }
-      fetchData()
+    startRecoding()
+  }, []);
+
+  // close Dialog when recoding is closing
+  useEffect(() => {
+    if (recording === "CLOSED" && showText) {
+      onOpenChange(false, showText);
     }
-  }, [recordingBlob]);
-
-  // Function to start recording
-  const startRecording = () => {
-    const chunks: Blob[] = [];
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        setRecording(true);
-        const recorder: MediaRecorder = new MediaRecorder(
-          stream
-        );
-        setMediaRecorder(recorder);
-        recorder.start(1000);
-
-        recorder.addEventListener("dataavailable", (event) => {
-          chunks.push(event.data);
-        });
-
-        recorder.addEventListener("stop", (event) => {
-          const blob = new Blob(chunks);
-          setRecordingBlob(blob);
-          recorder.stream.getTracks().forEach((t) => t.stop());
-          setMediaRecorder(undefined);
-        });
-      })
-      .catch((err: DOMException) => {
-        console.error(err.name, err.message, err.cause);
-        alert(`Error accessing microphone: ${err.message}`)
-      });
-
-  };
-  // Function to stop recording
-  const stopRecording = async () => {
-    mediaRecorder?.stop();
-    setRecording(false);
-  };
+  }, [recording]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(isOpen) => {
-        setMediaRecorder(undefined);
-        onOpenChange(isOpen, result)}
+        stopRecording()
+        onOpenChange(isOpen, showText)}
       }>
       <DialogContent
         className={cn(
-          "flex flex-col border-transparent bg-transparent outline-none"
+          "flex flex-col border-transparent outline-none"
         )}
       >
-        <div className="mt-10 flex justify-center">
-          <button 
-            className=" Button rounded-md bg-blue-500 w-60 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-400"
-            onClick={recording ? stopRecording : startRecording} >
-            {recording ? 'Stop Recording' : 'Start Recording'}
-          </button>
-        </div>
-        {mediaRecorder && <LiveAudioVisualizer mediaRecorder={mediaRecorder} width={400} height={75}/>}
-        <DialogDescription>{result}</DialogDescription>
+        <DialogTitle>Recording...</DialogTitle>
+        <DialogDescription className="mt-2">{showText}</DialogDescription>
         <div className="flex justify-end">
           <DialogClose asChild>
             <button className="Button green">Save</button>
