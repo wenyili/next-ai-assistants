@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/app/ui/dialog"
 import { useRecorder } from "../lib/useRecorder"
 import { LiveAudioVisualizer } from "./live-audio-visualizer"
+import { Button } from "../ui/button"
 
 interface VoiceDetectorProps {
   isOpen: boolean
@@ -11,7 +12,7 @@ interface VoiceDetectorProps {
 
 export function VoiceDetector ({
   isOpen,
-  onOpenChange
+  onOpenChange,
 }: VoiceDetectorProps) {
   const { recording, startRecoding, stopRecording, showText, analyser } = useRecorder();
   
@@ -22,6 +23,7 @@ export function VoiceDetector ({
   // close Dialog when recoding is closing
   useEffect(() => {
     if (recording === "CLOSED" && showText) {
+      stopRecording()
       onOpenChange(false, showText);
     }
   }, [recording]);
@@ -39,10 +41,14 @@ export function VoiceDetector ({
         <DialogTitle>Recording...</DialogTitle>
         {analyser && <LiveAudioVisualizer analyser={analyser} width={400} height={75}/>}
         <DialogDescription className="mt-2">{showText}</DialogDescription>
-        <div className="flex justify-end">
+        <div className="flex gap-3 justify-end">
           <DialogClose asChild>
-            <button className="Button green">Save</button>
+            <Button>Save</Button>
           </DialogClose>
+          <Button onClick={() => {
+            stopRecording()
+            onOpenChange(false);
+          }}>Cancel</Button>
         </div>
       </DialogContent>
     </Dialog>

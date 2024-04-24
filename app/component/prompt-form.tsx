@@ -14,8 +14,8 @@ import {
 } from '@/app/ui/tooltip'
 import { useEnterSubmit } from '@/app/lib/hooks/use-enter-submit'
 import { cn } from '@/app/lib/utils'
-import { useRouter } from 'next/navigation'
-import { UseChatHelpers } from '../lib/chat/type'
+import { useRouter, usePathname } from 'next/navigation'
+import { Message, UseChatHelpers } from '../lib/chat/type'
 import {isMobile} from 'react-device-detect';
 import { Input } from '../ui/input'
 import { ChatImagesDisplay } from './chat-images-display'
@@ -26,6 +26,7 @@ export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'>  {
   onSubmit: (value: string) => Promise<void>
   isLoading: boolean
+  setMessages: (messages: Message[]) => void
   handleSelectImageFile?: (target: File) => void
   images?: string[]
   setImages?: React.Dispatch<React.SetStateAction<string[]>>;
@@ -36,9 +37,10 @@ function PromptForm({
   input,
   setInput,
   isLoading,
+  setMessages,
   handleSelectImageFile,
   images,
-  setImages
+  setImages,
 }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
@@ -46,6 +48,7 @@ function PromptForm({
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { model } = useModel()
   const [ showVoiceDetector, setShowVoiceDetector ] = React.useState<boolean>(false)
+  const pathname = usePathname()
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -100,9 +103,13 @@ function PromptForm({
                 <button
                   onClick={e => {
                       e.preventDefault()
-                      router.refresh()
-                      // redirect to /
-                      router.push('/')
+                      const pattern = /^\/chat\/[A-Z]+$/;
+                      if (pattern.test(pathname)) {
+                        router.refresh()
+                        router.push('/')
+                      } else {
+                        setMessages([])
+                      }
                   }}
                   className={cn(
                     buttonVariants({ size: 'sm', variant: 'outline' }),

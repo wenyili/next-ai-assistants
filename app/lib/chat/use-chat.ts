@@ -378,6 +378,12 @@ export function useChat({
   
     const setMessages = useCallback(
         (messages: Message[]) => {
+            if (messages.length === 0) {
+                if (abortControllerRef.current) {
+                    abortControllerRef.current.abort();
+                    abortControllerRef.current = null;
+                }
+            }
             mutate(messages, false);
             messagesRef.current = messages;
         },

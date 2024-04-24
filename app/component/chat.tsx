@@ -54,6 +54,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
                 handleSelectImageFile={handleSelectImageFile}
                 images={images}
                 setImages={setImages}
+                setMessages={setMessages}
             />
         </>
     )

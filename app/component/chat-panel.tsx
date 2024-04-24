@@ -1,7 +1,7 @@
 import { Button } from '@/app/ui/button'
 import { ButtonScrollToBottom } from '@/app/component/button-scroll-to-bottom'
 import { IconRefresh, IconSave, IconSpinner, IconStop } from '@/app/ui/icons'
-import { Content, UseChatHelpers } from '@/app/lib/chat/type'
+import { Content, Message, UseChatHelpers } from '@/app/lib/chat/type'
 import dynamic from 'next/dynamic'
 import { saveChat } from '../actions'
 import { useRouter } from 'next/navigation'
@@ -25,6 +25,7 @@ export interface ChatPanelProps
   handleSelectImageFile?: (target: File) => void
   images?: string[]
   setImages?: React.Dispatch<React.SetStateAction<string[]>>;
+  setMessages: (messages: Message[]) => void
 }
 
 export function ChatPanel({
@@ -38,7 +39,8 @@ export function ChatPanel({
   messages,
   handleSelectImageFile,
   images,
-  setImages
+  setImages,
+  setMessages
 }: ChatPanelProps) {
   const [isSavePending, startSaveTransition] = useTransition()
   const router = useRouter()
@@ -147,6 +149,7 @@ export function ChatPanel({
             handleSelectImageFile={handleSelectImageFile}
             images={images}
             setImages={setImages}
+            setMessages={setMessages}
           />
         </div>
       </div>
