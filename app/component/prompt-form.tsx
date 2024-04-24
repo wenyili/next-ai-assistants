@@ -103,7 +103,7 @@ function PromptForm({
                 <button
                   onClick={e => {
                       e.preventDefault()
-                      const pattern = /^\/chat\/[A-Z]+$/;
+                      const pattern = /^\/chat\/[A-Za-z0-9]+$/;
                       if (pattern.test(pathname)) {
                         router.refresh()
                         router.push('/')
