@@ -1,7 +1,7 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
 
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { Content, Message } from '@/app/lib/chat/type'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -9,10 +9,11 @@ import remarkMath from 'remark-math'
 import { cn } from '@/app/lib/utils'
 import { CodeBlock } from '@/app/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/app/ui/markdown'
-import { IconOpenAI, IconUser } from '@/app/ui/icons'
+import { IconOpenAI, IconUser, IconTool } from '@/app/ui/icons'
 import { ChatMessageActions } from '@/app/component/chat-message-actions'
 import Image from 'next/image'
 import { ImagePreview } from "../ui/image-preview"
+import { SettingContext } from "./setting/settingProvider"
 export interface ChatMessageProps {
   message: Message
   index: number
@@ -23,17 +24,37 @@ export interface ChatMessageProps {
 export function ChatMessage({ message, index, removeMessage, editMessage, ...props }: ChatMessageProps) {
   const [showImagePreview, setShowImagePreview] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  
+
   let images: string[] = []
   let text = ''
-  if (typeof message.content === 'string') {
+  if (message.tool_calls) {
+    text = `\`\`\` json
+${JSON.stringify(message.tool_calls, null, 2)}
+\`\`\``
+  } else if (typeof message.content === 'string') {
     text = message.content
-  } else {
+  } else if (Array.isArray(message.content)) {
     const item = message.content.find(item => item.type === 'text');
     text = item?.text || ''
     images =  message.content
       .filter((item):item is Content & {image_url: string} => item.type === 'image_url' && item.image_url !== undefined)
       .map(item => item.image_url);
+  }
+
+  const getIcon = () => {
+    switch (message.role) {
+      case 'system':
+        return <IconOpenAI/>
+      case 'user':
+        return <IconUser/>
+      case 'assistant':
+        if (message.tool_calls) return <IconOpenAI fill="#FF0000"/>;
+        return <IconOpenAI/>
+      case 'tool':
+        return <IconTool/>
+      default:
+        return <span className="text-gray-500">UNKNOWN</span>
+    }
   }
 
   return (
@@ -49,7 +70,7 @@ export function ChatMessage({ message, index, removeMessage, editMessage, ...pro
             : 'bg-primary text-primary-foreground'
         )}
       >
-        {message.role === 'user' ? <IconUser /> : <IconOpenAI />}
+        {getIcon()}
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown

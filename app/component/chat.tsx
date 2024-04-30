@@ -7,7 +7,9 @@ import { ChatPanel } from '@/app/component/chat-panel'
 import { ChatScrollAnchor } from '@/app/component/chat-scroll-anchor'
 import { useChat } from '@/app/lib/chat/use-chat'
 import { toast } from 'react-hot-toast'
-import { useModel } from '@/app/lib/model'
+import { experimental_onToolCall } from '@/app/lib/experimental_onToolCall'
+import { useContext } from 'react'
+import { SettingContext } from './setting/settingProvider'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -15,8 +17,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 }
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
-    const { model } = useModel()
-
+    const { model, tools } = useContext(SettingContext)
     const { messages, append, reload, stop, isLoading, input, setInput, images, setImages, handleSelectImageFile, setMessages} = useChat({
         model,
         initialMessages,
@@ -34,7 +35,9 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             //     router.push(`/chat/${id}`)
             //     router.refresh()
             // }
-        }
+        },
+        experimental_onToolCall,
+        tools
     })
     return (
         <>

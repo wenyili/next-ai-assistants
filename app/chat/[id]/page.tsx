@@ -1,4 +1,4 @@
-import { getChat } from '@/app/actions'
+import { getChat } from '@/app/actions/chat'
 import { Chat } from '@/app/component/chat'
 import { auth } from '@/auth'
 import { notFound, redirect } from 'next/navigation'

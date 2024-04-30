@@ -2,6 +2,8 @@ import { type Message } from '@/app/lib/chat/type'
 
 import { Separator } from '@/app/ui/separator'
 import { ChatMessage } from '@/app/component/chat-message'
+import { useContext } from 'react'
+import { SettingContext } from './setting/settingProvider'
 
 export interface ChatList {
   messages: Message[]
@@ -35,12 +37,22 @@ export function ChatList({ messages, setMessages }: ChatList) {
     setMessages(newMessages)
   }
 
+  const { debug } = useContext(SettingContext)
+  let listMessages = messages;
+  if (!debug) {
+    listMessages = messages.filter((item) => {
+      if (item.role === "tool") return false
+      if (item.role === "assistant" && item.tool_calls) return false
+      return true
+    })
+  }
+
   return (
     <div className="relative mx-auto max-w-2xl px-4">
-      {messages.map((message, index) => (
+      {listMessages.map((message, index) => (
         <div key={index}>
           <ChatMessage message={message} index={index} removeMessage={removeMessage} editMessage={editMessage}/>
-          {index < messages.length - 1 && (
+          {index < listMessages.length - 1 && (
             <Separator className="my-4 md:my-8" />
           )}
         </div>

@@ -19,8 +19,9 @@ import { Message, UseChatHelpers } from '../lib/chat/type'
 import {isMobile} from 'react-device-detect';
 import { Input } from '../ui/input'
 import { ChatImagesDisplay } from './chat-images-display'
-import { useModel } from '../lib/model'
 import { VoiceDetector } from './voice-detector'
+import { SettingContext } from './setting/settingProvider'
+import { useContext } from 'react'
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'>  {
@@ -46,7 +47,7 @@ function PromptForm({
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const { model } = useModel()
+  const { model } = useContext(SettingContext)
   const [ showVoiceDetector, setShowVoiceDetector ] = React.useState<boolean>(false)
   const pathname = usePathname()
 

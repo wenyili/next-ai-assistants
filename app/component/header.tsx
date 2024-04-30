@@ -9,9 +9,7 @@ import {
 } from '@/app/ui/icons'
 import { UserMenu } from '@/app/component/user-menu'
 import { signOut } from '@/auth'
-import dynamic from 'next/dynamic'
-
-const ModelType = dynamic(() => import('@/app/component/model-type'), { ssr: false })
+import { Setting } from './setting/setting'
 
 async function UserOrLogin() {
   const session = await auth() 
@@ -42,7 +40,7 @@ export function Header() {
         </React.Suspense>
       </div>
       <div className="flex items-center">
-        <ModelType />
+        <Setting />
       </div>
     </header>
   )
