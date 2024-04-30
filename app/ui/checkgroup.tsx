@@ -26,7 +26,7 @@ function CheckboxGroup({options, handleChanges, values}: CheckboxGroupProp) {
         <div>
             {
                 options.map((option) => (
-                    <div className='flex items-cente gap-2 mb-2'>
+                    <div key={option.label} className='flex items-cente gap-2 mb-2'>
                         <Checkbox.Root className="bg-background w-6 h-6 rounded flex items-center justify-center shadow-lg hover:bg-primary/10 focus:shadow-sm focus:shadow-black" 
                             checked={selected.includes(option.value)} value={option.value} onCheckedChange={(checked: boolean) => handleChange(checked, option.value)}>
                             <Checkbox.Indicator>

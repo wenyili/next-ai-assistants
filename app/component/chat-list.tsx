@@ -11,6 +11,8 @@ export interface ChatList {
 }
 
 export function ChatList({ messages, setMessages }: ChatList) {
+  const { debug } = useContext(SettingContext)
+
   if (!messages.length) {
     return null
   }
@@ -37,7 +39,6 @@ export function ChatList({ messages, setMessages }: ChatList) {
     setMessages(newMessages)
   }
 
-  const { debug } = useContext(SettingContext)
   let listMessages = messages;
   if (!debug) {
     listMessages = messages.filter((item) => {
