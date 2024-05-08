@@ -43,6 +43,7 @@ const getStreamedResponse = async (
     onFinish?: (message: Message) => void,
     onResponse?: (response: Response) => void | Promise<void>,
     sendExtraMessageFields?: boolean,
+    tools?: string[],
 ) => {
     // Do an optimistic update to the chat state to show the updated messages
     // immediately.
@@ -104,6 +105,7 @@ const getStreamedResponse = async (
         messages: constructedMessagesPayload,
         body: {
             modelName:　imageMessage.length > 0 && chatRequest.modelName == "gpt-4" ? "gpt-4-vision" : chatRequest.modelName,
+            tools,
             data: chatRequest.data,
             ...extraMetadataRef.current.body,
             ...chatRequest.options?.body,
@@ -156,7 +158,6 @@ export function useChat({
     initialMessages,
     initialInput = '',
     sendExtraMessageFields,
-    experimental_onFunctionCall,
     experimental_onToolCall,
     onResponse,
     onFinish,
@@ -165,6 +166,7 @@ export function useChat({
     headers,
     body,
     generateId = nanoid,
+    tools = []
   }: UseChatOptions & {
     key?: string;
   } = {}): UseChatHelpers {
@@ -249,11 +251,12 @@ export function useChat({
                             onFinish,
                             onResponse,
                             sendExtraMessageFields,
+                            tools,
                         ),
-                    experimental_onFunctionCall,
                     experimental_onToolCall,
-                    updateChatRequest: chatRequestParam => {
-                        chatRequest = chatRequestParam;
+                    updateChatRequest: (message: Message) => {
+                        messagesRef.current.push(message)
+                        chatRequest.messages = messagesRef.current
                     },
                     getCurrentMessages: () => messagesRef.current,
                 });
@@ -288,7 +291,6 @@ export function useChat({
             mutateStreamData,
             streamData,
             sendExtraMessageFields,
-            experimental_onFunctionCall,
             experimental_onToolCall,
             messagesRef,
             abortControllerRef,

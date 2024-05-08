@@ -118,9 +118,8 @@ export type FunctionCallHandler = (
 ) => Promise<ChatRequest | void>;
   
 export type ToolCallHandler = (
-    chatMessages: Message[],
     toolCalls: ToolCall[],
-) => Promise<ChatRequest | void>;
+) => Promise<Message | void>;
 
 export type UseChatOptions = {
     /**
@@ -215,6 +214,8 @@ export type UseChatOptions = {
      * handle the extra fields before forwarding the request to the AI service.
      */
     sendExtraMessageFields?: boolean;
+
+    tools?: string[];
 };
 
 export type CreateMessage = Omit<Message, 'id'> & {

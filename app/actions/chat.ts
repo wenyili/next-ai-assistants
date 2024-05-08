@@ -2,7 +2,6 @@
 
 import { type Chat } from '@/app/lib/types'
 import { auth } from '@/auth'
-import { unstable_noStore as noStore } from 'next/cache';
 import OSS from 'ali-oss';
 
 // 初始化OSS客户端。请将以下参数替换为您自己的配置信息。
@@ -23,7 +22,6 @@ async function saveIndex(chats: Omit<Chat, 'messages'>[], userId: string) {
 }
 
 export async function getChats() {
-    noStore()
     const session = await auth() 
     const userId = session?.user?.name
 

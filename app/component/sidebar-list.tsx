@@ -1,5 +1,5 @@
 'use client'
-import { EditName, removeChat } from '@/app/actions'
+import { EditName, removeChat } from '@/app/actions/chat'
 import { SidebarActions } from '@/app/component/sidebar-actions'
 import { SidebarItem } from '@/app/component/sidebar-item'
 import {  useState } from 'react'

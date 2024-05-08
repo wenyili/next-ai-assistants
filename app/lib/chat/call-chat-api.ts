@@ -111,10 +111,7 @@ export async function callChatApi({
       // Update the chat state with the new message tokens.
       streamedResponse += decode(value);
 
-      if (streamedResponse.startsWith('{"function_call":')) {
-        // While the function call is streaming, it will be a string.
-        responseMessage['function_call'] = streamedResponse;
-      } else if (streamedResponse.startsWith('{"tool_calls":')) {
+      if (streamedResponse.startsWith('{"tool_calls":')) {
         // While the tool calls are streaming, it will be a string.
         responseMessage['tool_calls'] = streamedResponse;
       } else {
@@ -130,15 +127,6 @@ export async function callChatApi({
       }
     }
 
-    if (streamedResponse.startsWith('{"function_call":')) {
-      // Once the stream is complete, the function call is parsed into an object.
-      const parsedFunctionCall: FunctionCall =
-        JSON.parse(streamedResponse).function_call;
-
-      responseMessage['function_call'] = parsedFunctionCall;
-
-      appendMessage({ ...responseMessage });
-    }
     if (streamedResponse.startsWith('{"tool_calls":')) {
       // Once the stream is complete, the tool calls are parsed into an array.
       const parsedToolCalls: ToolCall[] =

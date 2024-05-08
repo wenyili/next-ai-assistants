@@ -2,6 +2,7 @@ import { OpenAIStream } from '@/app/lib/chat/openai-stream'
 import { StreamingTextResponse } from '@/app/lib/chat/streaming-text-response'
 import OpenAI from 'openai'
 import { ChatCompletionCreateParamsStreaming } from 'openai/resources/index.mjs'
+import { getTools } from './tools'
 export const runtime = 'edge'
 
 const apiKey = process.env.AZURE_OPENAI_API_KEY
@@ -14,7 +15,7 @@ const apiVersion = process.env.AZURE_OPENAI_VERSION
 
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, modelName = "gpt-3.5-turbo", stream = true } = json
+  const { messages, modelName = "gpt-3.5-turbo", stream = true, tools = [] } = json
 
   let deployemntName = model
   if (modelName === 'gpt-4-vision') {
@@ -46,6 +47,11 @@ export async function POST(req: Request) {
         messages,
         temperature: 0.7,
         stream: true,
+      }
+
+      const t = getTools(tools)
+      if (t && t.length > 0) {
+        options.tools = t
       }
 
       if (modelName === 'gpt-4-vision') {
