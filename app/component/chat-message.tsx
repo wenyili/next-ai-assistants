@@ -32,7 +32,13 @@ export function ChatMessage({ message, index, removeMessage, editMessage, ...pro
 ${JSON.stringify(message.tool_calls, null, 2)}
 \`\`\``
   } else if (typeof message.content === 'string') {
-    text = message.content
+    if (message.role === 'tool') {
+      text = `\`\`\` json
+${message.content}
+\`\`\``
+    } else {
+      text = message.content
+    }
   } else if (Array.isArray(message.content)) {
     const item = message.content.find(item => item.type === 'text');
     text = item?.text || ''

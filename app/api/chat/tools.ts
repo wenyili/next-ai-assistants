@@ -26,16 +26,20 @@ const TOOLS: Record<string, ChatCompletionTool> = {
             "parameters": {
                 "type": "object",
                 "properties": {
+                    "province": {
+                        "type": "string",
+                        "description": "要查询的省份全称，如果是直辖市，则返回'中华人民共和国'"
+                    },
                     "city": {
                         "type": "string",
-                        "description": "a city to get weather"
+                        "description": "要查询的城市全称，带上市、区、县、自治区这些字"
                     },
                     "extensions": {
                         "type": "string",
                         "description": "Optional values: base/all\nbase: returns current weather\nall: returns forecasted weather"
                     }
                 },
-                "required": ["city"]
+                "required": ["province", "city", "extensions"]
             }
         }
     }

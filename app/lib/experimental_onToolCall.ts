@@ -22,6 +22,27 @@ const TOOLS: Record<string, any> = {
 
         const data = await response.json();
         return JSON.stringify(data)
+    },
+    
+    "get_weather": async (args: Record<string, any>) => {
+        const province = args['province']
+        const city = args['city']
+        const extensions = args['extensions']
+
+        const response = await fetch('api/weather', {
+            method: 'POST',
+            body: JSON.stringify({
+                province,
+                city,
+                extensions
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            }
+        })
+
+        const data = await response.json();
+        return JSON.stringify(data)
     }
 }
 
